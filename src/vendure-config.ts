@@ -11,11 +11,11 @@ import {
   FileBasedTemplateLoader,
 } from "@vendure/email-plugin";
 import { AssetServerPlugin } from "@vendure/asset-server-plugin";
-import { AdminUiPlugin } from "@vendure/admin-ui-plugin";
 import { GraphiqlPlugin } from "@vendure/graphiql-plugin";
+import { AdminUiPlugin } from "@vendure/admin-ui-plugin";
 import "dotenv/config";
 import path from "path";
-
+import { DashboardPlugin } from "@vendure/dashboard/plugin";
 const IS_DEV = process.env.APP_ENV === "dev";
 const serverPort = +process.env.PORT || 3000;
 
@@ -23,17 +23,22 @@ export const config: VendureConfig = {
   apiOptions: {
     port: serverPort,
     adminApiPath: "admin-api",
-    shopApiPath: "shop-api",
-    trustProxy: IS_DEV ? false : 1,
-    // The following options are useful in development mode,
-    // but are best turned off for production for security
-    // reasons.
-    ...(IS_DEV
-      ? {
-          adminApiDebug: true,
-          shopApiDebug: true,
-        }
-      : {}),
+    shopApiPath: "api",
+    cors: {
+      origin: [
+        "https://caloriecounter.lk",
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:5174",
+      ],
+      credentials: true,
+      methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+      allowedHeaders: [
+        "Content-Type",
+        "Authorization",
+        "vendure-token", // 👈 add your custom header
+      ],
+    },
   },
   authOptions: {
     tokenMethod: ["bearer", "cookie"],
@@ -44,6 +49,7 @@ export const config: VendureConfig = {
     cookieOptions: {
       secret: process.env.COOKIE_SECRET,
     },
+    sessionDuration: "3d",
   },
   dbConnectionOptions: {
     type: "better-sqlite3",
@@ -69,42 +75,46 @@ export const config: VendureConfig = {
   },
   plugins: [
     GraphiqlPlugin.init(),
+    AdminUiPlugin,
     AssetServerPlugin.init({
       route: "assets",
       assetUploadDir: path.join(__dirname, "../static/assets"),
       // For local dev, the correct value for assetUrlPrefix should
       // be guessed correctly, but for production it will usually need
       // to be set manually to match your production url.
-      assetUrlPrefix: IS_DEV ? undefined : "https://www.my-shop.com/assets/",
+      assetUrlPrefix: IS_DEV
+        ? `http://localhost:${serverPort}/assets/`
+        : process.env.PUBLICASSESTPREFIX,
     }),
     DefaultSchedulerPlugin.init(),
     DefaultJobQueuePlugin.init({ useDatabaseForBuffer: true }),
     DefaultSearchPlugin.init({ bufferUpdates: false, indexStockStatus: true }),
     EmailPlugin.init({
-      devMode: true,
-      outputPath: path.join(__dirname, "../static/email/test-emails"),
-      route: "mailbox",
       handlers: defaultEmailHandlers,
       templateLoader: new FileBasedTemplateLoader(
-        path.join(__dirname, "../static/email/templates")
+        path.join(__dirname, "../static/email/templates"),
       ),
+      transport: {
+        type: "smtp",
+        host: process.env.SMTP_HOST,
+        port: +process.env.SMTP_PORT,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      },
       globalTemplateVars: {
-        // The following variables will change depending on your storefront implementation.
-        // Here we are assuming a storefront running at http://localhost:8080.
-        fromAddress: '"example" <noreply@example.com>',
-        verifyEmailAddressUrl: "http://localhost:8080/verify",
-        passwordResetUrl: "http://localhost:8080/password-reset",
-        changeEmailAddressUrl:
-          "http://localhost:8080/verify-email-address-change",
+        fromAddress: process.env.FROM_ADDRESS,
+        verifyEmailAddressUrl: process.env.VERIFY_EMAIL_URL,
+        passwordResetUrl: process.env.PASSWORD_RESET_URL,
+        changeEmailAddressUrl: process.env.CHANGE_EMAIL_URL,
       },
     }),
-    AdminUiPlugin.init({
-      route: "admin",
-      port: serverPort + 2,
-      adminUiConfig: {
-        apiPort: serverPort,
-        brand:"Calarie Counter | 7ShopAdmin"
-      },
-    }),
+    // DashboardPlugin.init({
+    //   // Important: This must match the base path from vite.config.mts (without slashes)
+    //   route: "dashboard",
+    //   // Path to the Vite build output directory
+    //   appDir: path.join(__dirname, "./dist/dashboard"),
+    // }),
   ],
 };
