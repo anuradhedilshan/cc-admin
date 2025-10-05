@@ -23,7 +23,7 @@ interface CreateCustomerEventRegistrationShopInput {
   regType?: RegistrationType;
   category: string;
   title: string;
-  orgname: string;
+  orgname?: string;
   eventdate: Date;
   code: string;
   customFields?: CustomFieldsObject;

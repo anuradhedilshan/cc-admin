@@ -15,7 +15,8 @@ import { GraphiqlPlugin } from "@vendure/graphiql-plugin";
 import { AdminUiPlugin } from "@vendure/admin-ui-plugin";
 import "dotenv/config";
 import path from "path";
-import { DashboardPlugin } from "@vendure/dashboard/plugin";
+import { CaloriecounterPlugin } from "./plugins/caloriecounter/caloriecounter.plugin";
+
 const IS_DEV = process.env.APP_ENV === "dev";
 const serverPort = +process.env.PORT || 3000;
 
@@ -30,6 +31,7 @@ export const config: VendureConfig = {
         "http://localhost:3000",
         "http://localhost:5173",
         "http://localhost:5174",
+        "https://admin.caloriecounter.lk",
       ],
       credentials: true,
       methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
@@ -72,6 +74,8 @@ export const config: VendureConfig = {
       { name: "tags", type: "string", nullable: true },
       { name: "styles", type: "string", nullable: true },
     ],
+
+    Customer: [{ name: "run", type: "boolean", defaultValue: false }],
   },
   plugins: [
     GraphiqlPlugin.init(),
@@ -110,11 +114,6 @@ export const config: VendureConfig = {
         changeEmailAddressUrl: process.env.CHANGE_EMAIL_URL,
       },
     }),
-    // DashboardPlugin.init({
-    //   // Important: This must match the base path from vite.config.mts (without slashes)
-    //   route: "dashboard",
-    //   // Path to the Vite build output directory
-    //   appDir: path.join(__dirname, "./dist/dashboard"),
-    // }),
+    CaloriecounterPlugin,
   ],
 };

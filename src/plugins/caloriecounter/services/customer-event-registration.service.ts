@@ -27,7 +27,7 @@ import { PluginInitOptions } from "../types";
 interface CreateCustomerEventRegistrationInput {
   category: string;
   title: string;
-  orgname: string;
+  orgname?: string;
   eventdate: Date;
   code: string;
   // Define the input fields here

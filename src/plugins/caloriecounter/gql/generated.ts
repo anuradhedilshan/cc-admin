@@ -813,7 +813,7 @@ export type CreateCustomerEventRegistrationInput = {
   customFields?: InputMaybe<Scalars['JSON']['input']>;
   customerId: Scalars['ID']['input'];
   eventdate: Scalars['DateTime']['input'];
-  orgname: Scalars['String']['input'];
+  orgname?: InputMaybe<Scalars['String']['input']>;
   regType?: InputMaybe<Scalars['String']['input']>;
   title: Scalars['String']['input'];
 };
@@ -1455,7 +1455,7 @@ export type CustomerEventRegistration = Node & {
   customer: Customer;
   eventdate: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
-  orgname: Scalars['String']['output'];
+  orgname?: Maybe<Scalars['String']['output']>;
   regType: Scalars['String']['output'];
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];

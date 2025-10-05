@@ -12,7 +12,7 @@ const sharedTypes = gql`
     regType: String!
     category: String!
     title: String!
-    orgname: String!
+    orgname: String
     eventdate: DateTime!
     code: String!
   }
@@ -36,7 +36,7 @@ export const customerEventRegistrationAdminApiExtensions = gql`
     regType: String
     category: String!
     title: String!
-    orgname: String!
+    orgname: String
     eventdate: DateTime!
     code: String!
   }
@@ -98,7 +98,7 @@ export const customerEventRegistrationShopApiExtensions = gql`
     regType: String
     category: String!
     title: String!
-    orgname: String!
+    orgname: String
     eventdate: DateTime!
     code: String!
   }

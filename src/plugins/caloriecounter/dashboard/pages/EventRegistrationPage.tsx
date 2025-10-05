@@ -117,7 +117,7 @@ export const customerEventRegistrationList: DashboardRouteDefinition = {
             const { customer } = row.original;
             return (
               <DetailPageButton
-                href={`/customers/detail/${customer.id}`}
+                href={`/customers/${customer.id}`}
                 label={`${customer.firstName} ${customer.lastName}`}
                 search={{ tab: "details" }}
               />

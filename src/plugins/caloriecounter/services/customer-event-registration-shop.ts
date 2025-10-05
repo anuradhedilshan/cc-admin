@@ -6,6 +6,7 @@ import {
 import {
   CustomFieldRelationService,
   Customer,
+  CustomerService,
   ForbiddenError,
   ID,
   ListQueryBuilder,
@@ -16,19 +17,18 @@ import {
   UserInputError,
   assertFound,
 } from "@vendure/core";
-import { CALORIECOUNTER_PLUGIN_OPTIONS } from "../constants";
 import {
   CustomerEventRegistration,
   RegistrationType,
 } from "../entities/customer-event-registration.entity";
-import { PluginInitOptions } from "../types";
+import { loggerCtx } from "../constants";
 
 // Input types for Shop API operations
 interface CreateCustomerEventRegistrationShopInput {
   regType?: RegistrationType;
   category: string;
   title: string;
-  orgname: string;
+  orgname?: string;
   eventdate: Date;
   code: string;
   customFields?: CustomFieldsObject;
@@ -50,6 +50,7 @@ export class CustomerEventRegistrationShop {
   constructor(
     private connection: TransactionalConnection,
     private listQueryBuilder: ListQueryBuilder,
+    private customerService: CustomerService,
   ) {}
 
   /**
@@ -92,8 +93,17 @@ export class CustomerEventRegistrationShop {
     relations?: RelationPaths<CustomerEventRegistration>,
   ): Promise<CustomerEventRegistration | null> {
     const customerId = ctx.activeUserId;
+
     if (!customerId) {
       throw new ForbiddenError();
+    }
+    // Get the customer entity
+    const customer = await this.customerService.findOneByUserId(
+      ctx,
+      customerId,
+    );
+    if (!customer) {
+      throw new UserInputError(`Cutomer Auth Failed no Account`);
     }
 
     const registration = await this.connection
@@ -104,7 +114,7 @@ export class CustomerEventRegistrationShop {
       });
 
     // Verify the registration belongs to the authenticated customer
-    if (registration && registration.customer.id !== customerId) {
+    if (registration && registration.customer.id !== customer.id) {
       throw new ForbiddenError();
     }
 
@@ -124,24 +134,26 @@ export class CustomerEventRegistrationShop {
     }
 
     // Get the customer entity
-    const customer = await this.connection.getEntityOrThrow(
+    const customer = await this.customerService.findOneByUserId(
       ctx,
-      Customer,
       customerId,
     );
-
+    if (!customer) {
+      throw new UserInputError(`Cutomer Auth Failed no Account`);
+    }
     // Create new registration instance
     const newRegistration = new CustomerEventRegistration({
       ...input,
       customer,
       regType: input.regType || RegistrationType.INDIVIDUAL,
     });
+    console.log("customer new registration", newRegistration);
 
     // Save the entity
     const savedRegistration = await this.connection
       .getRepository(ctx, CustomerEventRegistration)
       .save(newRegistration);
-
+    console.log("saved registraton,", savedRegistration);
     return assertFound(this.findOne(ctx, savedRegistration.id));
   }
 

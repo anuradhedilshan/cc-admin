@@ -33,7 +33,7 @@ export class CustomerEventRegistration
   category: string; // e.g., "marathon", "food-fest", "competition"
   @Column()
   title: string;
-  @Column()
+  @Column({ nullable: true })
   orgname: string;
   @Column()
   eventdate: Date;

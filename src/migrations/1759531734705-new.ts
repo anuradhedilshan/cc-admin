@@ -1,0 +1,27 @@
+import {MigrationInterface, QueryRunner} from "typeorm";
+
+export class New1759531734705 implements MigrationInterface {
+
+   public async up(queryRunner: QueryRunner): Promise<any> {
+        await queryRunner.query(`CREATE TABLE "temporary_customer_event_registration" ("createdAt" datetime NOT NULL DEFAULT (datetime('now')), "updatedAt" datetime NOT NULL DEFAULT (datetime('now')), "regType" varchar CHECK( "regType" IN ('individual','club','organization','gym') ) NOT NULL DEFAULT ('individual'), "category" varchar NOT NULL DEFAULT ('general'), "title" varchar NOT NULL, "orgname" varchar NOT NULL, "eventdate" datetime NOT NULL, "code" varchar NOT NULL, "id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "customerId" integer, CONSTRAINT "FK_8c81c47388698e7886131f49c93" FOREIGN KEY ("customerId") REFERENCES "customer" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION)`, undefined);
+        await queryRunner.query(`INSERT INTO "temporary_customer_event_registration"("createdAt", "updatedAt", "regType", "category", "title", "orgname", "eventdate", "code", "id", "customerId") SELECT "createdAt", "updatedAt", "regType", "category", "title", "orgname", "eventdate", "code", "id", "customerId" FROM "customer_event_registration"`, undefined);
+        await queryRunner.query(`DROP TABLE "customer_event_registration"`, undefined);
+        await queryRunner.query(`ALTER TABLE "temporary_customer_event_registration" RENAME TO "customer_event_registration"`, undefined);
+        await queryRunner.query(`CREATE TABLE "temporary_customer_event_registration" ("createdAt" datetime NOT NULL DEFAULT (datetime('now')), "updatedAt" datetime NOT NULL DEFAULT (datetime('now')), "regType" varchar CHECK( "regType" IN ('individual','club','organization','gym') ) NOT NULL DEFAULT ('individual'), "category" varchar NOT NULL DEFAULT ('general'), "title" varchar NOT NULL, "orgname" varchar NOT NULL, "eventdate" datetime NOT NULL, "code" varchar NOT NULL, "id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "customerId" integer, CONSTRAINT "FK_8c81c47388698e7886131f49c93" FOREIGN KEY ("customerId") REFERENCES "customer" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION)`, undefined);
+        await queryRunner.query(`INSERT INTO "temporary_customer_event_registration"("createdAt", "updatedAt", "regType", "category", "title", "orgname", "eventdate", "code", "id", "customerId") SELECT "createdAt", "updatedAt", "regType", "category", "title", "orgname", "eventdate", "code", "id", "customerId" FROM "customer_event_registration"`, undefined);
+        await queryRunner.query(`DROP TABLE "customer_event_registration"`, undefined);
+        await queryRunner.query(`ALTER TABLE "temporary_customer_event_registration" RENAME TO "customer_event_registration"`, undefined);
+   }
+
+   public async down(queryRunner: QueryRunner): Promise<any> {
+        await queryRunner.query(`ALTER TABLE "customer_event_registration" RENAME TO "temporary_customer_event_registration"`, undefined);
+        await queryRunner.query(`CREATE TABLE "customer_event_registration" ("createdAt" datetime NOT NULL DEFAULT (datetime('now')), "updatedAt" datetime NOT NULL DEFAULT (datetime('now')), "regType" varchar CHECK( "regType" IN ('individual','club','organization','gym') ) NOT NULL DEFAULT ('individual'), "category" varchar NOT NULL DEFAULT ('general'), "title" varchar NOT NULL, "orgname" varchar NOT NULL, "eventdate" datetime NOT NULL, "code" varchar NOT NULL, "id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "customerId" integer, CONSTRAINT "FK_8c81c47388698e7886131f49c93" FOREIGN KEY ("customerId") REFERENCES "customer" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION)`, undefined);
+        await queryRunner.query(`INSERT INTO "customer_event_registration"("createdAt", "updatedAt", "regType", "category", "title", "orgname", "eventdate", "code", "id", "customerId") SELECT "createdAt", "updatedAt", "regType", "category", "title", "orgname", "eventdate", "code", "id", "customerId" FROM "temporary_customer_event_registration"`, undefined);
+        await queryRunner.query(`DROP TABLE "temporary_customer_event_registration"`, undefined);
+        await queryRunner.query(`ALTER TABLE "customer_event_registration" RENAME TO "temporary_customer_event_registration"`, undefined);
+        await queryRunner.query(`CREATE TABLE "customer_event_registration" ("createdAt" datetime NOT NULL DEFAULT (datetime('now')), "updatedAt" datetime NOT NULL DEFAULT (datetime('now')), "regType" varchar CHECK( "regType" IN ('individual','club','organization','gym') ) NOT NULL DEFAULT ('individual'), "category" varchar NOT NULL DEFAULT ('general'), "title" varchar NOT NULL, "orgname" varchar NOT NULL, "eventdate" datetime NOT NULL, "code" varchar NOT NULL, "id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "customerId" integer, CONSTRAINT "FK_8c81c47388698e7886131f49c93" FOREIGN KEY ("customerId") REFERENCES "customer" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION)`, undefined);
+        await queryRunner.query(`INSERT INTO "customer_event_registration"("createdAt", "updatedAt", "regType", "category", "title", "orgname", "eventdate", "code", "id", "customerId") SELECT "createdAt", "updatedAt", "regType", "category", "title", "orgname", "eventdate", "code", "id", "customerId" FROM "temporary_customer_event_registration"`, undefined);
+        await queryRunner.query(`DROP TABLE "temporary_customer_event_registration"`, undefined);
+   }
+
+}

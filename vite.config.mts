@@ -2,7 +2,6 @@ import { vendureDashboardPlugin } from "@vendure/dashboard/vite";
 import { pathToFileURL } from "url";
 import { defineConfig } from "vite";
 import { resolve, join } from "path";
-
 export default defineConfig({
   build: {
     outDir: join(__dirname, "dist/dashboard"),
@@ -16,7 +15,8 @@ export default defineConfig({
       // and custom fields that are configured.
       vendureConfigPath: pathToFileURL("./src/vendure-config.ts"),
       // Points to the location of your Vendure server.
-      api: { host: "https://api.caloriecounter.lk", port: 443 },
+      // api: { host: "https://api.caloriecounter.lk", port: 443 },
+      api: { host: "http://localhost", port: 3001 },
       // When you start the Vite server, your Admin API schema will
       // be introspected and the types will be generated in this location.
       // These types can be used in your dashboard extensions to provide
@@ -46,6 +46,7 @@ export default defineConfig({
       },
       hideVendureBranding: true,
     }),
+    ,
   ],
   resolve: {
     alias: {
