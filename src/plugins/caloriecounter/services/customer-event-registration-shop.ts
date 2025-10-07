@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Catch, Inject, Injectable } from "@nestjs/common";
 import {
   CustomFieldsObject,
   PaginatedList,
@@ -22,6 +22,7 @@ import {
   RegistrationType,
 } from "../entities/customer-event-registration.entity";
 import { loggerCtx } from "../constants";
+import { ErrorResult } from "@vendure/common/lib/generated-shop-types";
 
 // Input types for Shop API operations
 interface CreateCustomerEventRegistrationShopInput {
@@ -32,6 +33,10 @@ interface CreateCustomerEventRegistrationShopInput {
   eventdate: Date;
   code: string;
   customFields?: CustomFieldsObject;
+  firstName?: string;
+  lastName?: string;
+  emailAddress?: string;
+  phoneNumber?: string;
 }
 
 interface UpdateCustomerEventRegistrationShopInput {
@@ -129,17 +134,31 @@ export class CustomerEventRegistrationShop {
     input: CreateCustomerEventRegistrationShopInput,
   ): Promise<CustomerEventRegistration> {
     const customerId = ctx.activeUserId;
-    if (!customerId) {
-      throw new ForbiddenError();
+    let customer: Customer | undefined;
+    if (customerId) {
+      customer = await this.customerService.findOneByUserId(ctx, customerId);
     }
 
     // Get the customer entity
-    const customer = await this.customerService.findOneByUserId(
-      ctx,
-      customerId,
-    );
-    if (!customer) {
-      throw new UserInputError(`Cutomer Auth Failed no Account`);
+    if (!customer && input.emailAddress && input.firstName && input.lastName) {
+      try {
+        const tempcustomer = await this.customerService.create(ctx, {
+          emailAddress: input.emailAddress,
+          firstName: input.firstName,
+          lastName: input.lastName,
+          phoneNumber: input.phoneNumber,
+        });
+        if (tempcustomer) {
+          console.log("temp customer Created", tempcustomer);
+          customer = tempcustomer as Customer;
+        } else {
+          console.log("customer not", customer);
+          throw new UserInputError("customer is not part of customer");
+        }
+      } catch (error: any) {
+        console.error("customer create error", error);
+        throw new UserInputError("customer create failed");
+      }
     }
     // Create new registration instance
     const newRegistration = new CustomerEventRegistration({
@@ -154,7 +173,7 @@ export class CustomerEventRegistrationShop {
       .getRepository(ctx, CustomerEventRegistration)
       .save(newRegistration);
     console.log("saved registraton,", savedRegistration);
-    return assertFound(this.findOne(ctx, savedRegistration.id));
+    return savedRegistration;
   }
 
   /**

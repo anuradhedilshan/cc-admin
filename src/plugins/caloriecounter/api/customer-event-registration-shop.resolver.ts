@@ -27,6 +27,10 @@ interface CreateCustomerEventRegistrationShopInput {
   eventdate: Date;
   code: string;
   customFields?: CustomFieldsObject;
+  firstName?: string;
+  lastName?: string;
+  emailAddress?: string;
+  phoneNumber?: string;
 }
 
 interface UpdateCustomerEventRegistrationShopInput {
@@ -117,7 +121,7 @@ export class CustomerEventRegistrationShopResolver {
    */
   @Mutation()
   @Transaction()
-  @Allow(Permission.Authenticated)
+  @Allow(Permission.Public)
   async createCustomerEventRegistration(
     @Ctx() ctx: RequestContext,
     @Args() args: { input: CreateCustomerEventRegistrationShopInput },

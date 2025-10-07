@@ -101,6 +101,10 @@ export const customerEventRegistrationShopApiExtensions = gql`
     orgname: String
     eventdate: DateTime!
     code: String!
+    firstName: String
+    lastName: String
+    emailAddress: String
+    phoneNumber: String
   }
 
   input UpdateCustomerEventRegistrationShopInput {
